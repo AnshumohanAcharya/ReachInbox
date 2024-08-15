@@ -16,7 +16,7 @@ The application is deployed on netlify and can be accessed [here](https://66bc3c
  
    <h2>Installation</h2>
    
-   Clone the repository:   ``` git clone https://github.com/Vikassinghrathor/ReachInbox_AI_Assignment.git  ``` <br/>
+   Clone the repository:   ``` git clone https://github.com/AnshumohanAcharya/ReachInbox.git  ``` <br/>
    Navigate to the project directory:   ``` cd client ``` <br/>
    Install the dependencies:   ``` npm install ``` <br/>
    Start the development server:   ``` npm run start ``` <br/>
