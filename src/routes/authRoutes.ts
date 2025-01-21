@@ -8,7 +8,7 @@ router.get("/gmail", async (req, res) => {
     try {
         const authUrl = await authService.getGmailAuthUrl();
         console.log("Generated Auth URL:", authUrl); // For debugging
-        res.redirect(authUrl);
+        res.json({ url: authUrl });
     } catch (error) {
         console.error("Gmail auth error:", error);
         res.status(500).json({

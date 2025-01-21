@@ -5,10 +5,15 @@ import authRoutes from "./routes/authRoutes";
 import emailRoutes from "./routes/emailRoutes";
 import processorRoutes from "./routes/processorRoutes";
 import swaggerDocument from "./swagger";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}))
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
