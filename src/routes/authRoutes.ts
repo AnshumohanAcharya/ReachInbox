@@ -34,20 +34,9 @@ router.get("/gmail/callback", async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /auth/outlook:
- *   get:
- *     summary: Initiate Outlook authentication
- *     responses:
- *       302:
- *         description: Redirect to Outlook authentication URL
- *       500:
- *         description: Failed to initiate Outlook authentication
- */
 router.get("/outlook", async (req, res) => {
     try {
-        const authUrl = await authService.getOutlookAuthUrl();
+        const authUrl = await AuthService.getOutlookAuthUrl();
         res.redirect(authUrl);
     } catch (error) {
         console.error("Outlook auth error:", error);

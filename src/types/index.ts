@@ -4,6 +4,7 @@ export interface EmailAccount {
     email: string;
     accessToken: string;
     refreshToken: string;
+    requiresReauth: boolean;
     expiresAt: Date;
 }
 

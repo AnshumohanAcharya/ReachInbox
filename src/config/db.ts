@@ -39,6 +39,7 @@ export const emailAccounts = pgTable("email_accounts", {
     email: text("email").notNull(),
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token").notNull(),
+    requiresReauth: boolean("requires_reauth").default(false),
     expiresAt: timestamp("expires_at").notNull(),
 });
 

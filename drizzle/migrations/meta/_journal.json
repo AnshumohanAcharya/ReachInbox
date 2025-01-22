@@ -15,6 +15,13 @@
       "when": 1737429001981,
       "tag": "0001_watery_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737487157676,
+      "tag": "0002_handy_bulldozer",
+      "breakpoints": true
     }
   ]
 }
