@@ -1,18 +1,20 @@
 import { neon } from "@neondatabase/serverless";
+import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
-  boolean,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
+    boolean,
+    pgTable,
+    serial,
+    text,
+    timestamp,
+    varchar,
 } from "drizzle-orm/pg-core";
-import dotenv from "dotenv";
 dotenv.config();
 
 if (!process.env.DATABASE_URL) {
-    throw new Error("No database connection string provided. Check your environment variables.");
+    throw new Error(
+        "No database connection string provided. Check your environment variables."
+    );
 }
 
 export const db = drizzle(neon(process.env.DATABASE_URL!));

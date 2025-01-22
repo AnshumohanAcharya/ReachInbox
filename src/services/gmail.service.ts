@@ -1,16 +1,14 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { eq } from "drizzle-orm";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
-import { eq } from "drizzle-orm";
-import { config } from 'dotenv';
-import { db, emailAccounts, processedEmails } from "../config/db";
+import { db, emailAccounts } from "../config/db";
 import { ProcessedEmail } from "../types";
 
 // Gmail label IDs - these will be populated when labels are created/fetched
 interface GmailLabels {
-  INTERESTED: string;
-  NOT_INTERESTED: string;
-  MORE_INFORMATION: string;
+    INTERESTED: string;
+    NOT_INTERESTED: string;
+    MORE_INFORMATION: string;
 }
 
 export class GmailService {
@@ -40,52 +38,66 @@ export class GmailService {
     private async ensureLabelsExist(gmail: any) {
         try {
             // Get all existing labels
-            const response = await gmail.users.labels.list({ userId: 'me' });
+            const response = await gmail.users.labels.list({ userId: "me" });
             const existingLabels = response.data.labels || [];
 
             // Define our required labels
             const requiredLabels = [
-                { name: 'Interested', labelListVisibility: 'labelShow' },
-                { name: 'Not Interested', labelListVisibility: 'labelShow' },
-                { name: 'More Information', labelListVisibility: 'labelShow' }
+                { name: "Interested", labelListVisibility: "labelShow" },
+                { name: "Not Interested", labelListVisibility: "labelShow" },
+                { name: "More Information", labelListVisibility: "labelShow" },
             ];
 
             const labels: GmailLabels = {
-                INTERESTED: '',
-                NOT_INTERESTED: '',
-                MORE_INFORMATION: ''
+                INTERESTED: "",
+                NOT_INTERESTED: "",
+                MORE_INFORMATION: "",
             };
 
             // Create or get existing labels
             for (const label of requiredLabels) {
-                const existingLabel = existingLabels.find((l: { name: string }) => l.name === label.name);
-                
+                const existingLabel = existingLabels.find(
+                    (l: { name: string }) => l.name === label.name
+                );
+
                 if (existingLabel) {
                     // Use existing label
-                    labels[label.name.toUpperCase().replace(' ', '_') as keyof GmailLabels] = existingLabel.id;
+                    labels[
+                        label.name
+                            .toUpperCase()
+                            .replace(" ", "_") as keyof GmailLabels
+                    ] = existingLabel.id;
                 } else {
                     // Create new label
                     const created = await gmail.users.labels.create({
-                        userId: 'me',
+                        userId: "me",
                         requestBody: {
                             name: label.name,
                             labelListVisibility: label.labelListVisibility,
-                            messageListVisibility: 'show'
-                        }
+                            messageListVisibility: "show",
+                        },
                     });
-                    labels[label.name.toUpperCase().replace(' ', '_') as keyof GmailLabels] = created.data.id;
+                    labels[
+                        label.name
+                            .toUpperCase()
+                            .replace(" ", "_") as keyof GmailLabels
+                    ] = created.data.id;
                 }
             }
 
             this.labels = labels;
             return labels;
         } catch (error) {
-            console.error('Error ensuring labels exist:', error);
+            console.error("Error ensuring labels exist:", error);
             throw error;
         }
     }
 
-    async attachLabelToEmail(accountId: string, messageId: string, labelName: string) {
+    async attachLabelToEmail(
+        accountId: string,
+        messageId: string,
+        labelName: string
+    ) {
         try {
             const account = await db
                 .select()
@@ -99,28 +111,32 @@ export class GmailService {
             }
 
             const gmail = await this.getGmailClient(account[0].accessToken);
-            
+
             // Ensure labels exist and get label IDs
             const labels = await this.ensureLabelsExist(gmail);
-            
+
             // Convert labelName to the corresponding label ID
-            const labelKey = labelName.toUpperCase().replace(' ', '_') as keyof GmailLabels;
+            const labelKey = labelName
+                .toUpperCase()
+                .replace(" ", "_") as keyof GmailLabels;
             const labelId = labels[labelKey];
-            
+
             if (!labelId) {
                 throw new Error(`Label ID not found for ${labelName}`);
             }
 
             // Modify the message to add the label
             await gmail.users.messages.modify({
-                userId: 'me',
+                userId: "me",
                 id: messageId,
                 requestBody: {
                     addLabelIds: [labelId],
-                }
+                },
             });
 
-            console.log(`Label ${labelName} (ID: ${labelId}) added to email ${messageId}`);
+            console.log(
+                `Label ${labelName} (ID: ${labelId}) added to email ${messageId}`
+            );
             return true;
         } catch (error) {
             console.error("Error attaching label to email:", error);
@@ -128,7 +144,11 @@ export class GmailService {
         }
     }
 
-    async sendReply(accountId: string, messageId: string, replyContent: string) {
+    async sendReply(
+        accountId: string,
+        messageId: string,
+        replyContent: string
+    ) {
         try {
             const account = await db
                 .select()
@@ -145,39 +165,41 @@ export class GmailService {
 
             // Get the original message to reply to
             const originalMessage = await gmail.users.messages.get({
-                userId: 'me',
+                userId: "me",
                 id: messageId,
             });
 
             const headers = originalMessage.data.payload?.headers;
-            const to = headers?.find(h => h.name === "From")?.value;
-            const subject = headers?.find(h => h.name === "Subject")?.value;
-            const references = headers?.find(h => h.name === "Message-ID")?.value;
+            const to = headers?.find((h) => h.name === "From")?.value;
+            const subject = headers?.find((h) => h.name === "Subject")?.value;
+            const references = headers?.find(
+                (h) => h.name === "Message-ID"
+            )?.value;
 
             // Construct email with proper headers for threading
             const email = [
                 'Content-Type: text/plain; charset="UTF-8"\n',
-                'MIME-Version: 1.0\n',
-                'Content-Transfer-Encoding: 7bit\n',
+                "MIME-Version: 1.0\n",
+                "Content-Transfer-Encoding: 7bit\n",
                 `To: ${to}\n`,
                 `Subject: Re: ${subject}\n`,
                 `References: ${references}\n`,
                 `In-Reply-To: ${references}\n\n`,
-                replyContent
-            ].join('');
+                replyContent,
+            ].join("");
 
             const encodedEmail = Buffer.from(email)
-                .toString('base64')
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
+                .toString("base64")
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
 
             await gmail.users.messages.send({
-                userId: 'me',
+                userId: "me",
                 requestBody: {
                     raw: encodedEmail,
-                    threadId: originalMessage.data.threadId
-                }
+                    threadId: originalMessage.data.threadId,
+                },
             });
 
             return true;
@@ -186,7 +208,7 @@ export class GmailService {
             throw error;
         }
     }
-    
+
     async fetchEmails(accountId: string, maxResults: number = 4) {
         try {
             const account = await db

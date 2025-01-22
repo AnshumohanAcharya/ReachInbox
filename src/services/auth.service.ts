@@ -73,7 +73,9 @@ export class AuthService {
             await db.insert(emailAccounts).values(emailAccount);
 
             // Add to processing queue
-            await QueueService.getInstance().addAccountToProcessing(emailAccount.id);
+            await QueueService.getInstance().addAccountToProcessing(
+                emailAccount.id
+            );
 
             return emailAccount;
         } catch (error) {
@@ -142,7 +144,9 @@ export class AuthService {
             await db.insert(emailAccounts).values(emailAccount);
 
             // Add to processing queue
-            await QueueService.getInstance().addAccountToProcessing(emailAccount.id);
+            await QueueService.getInstance().addAccountToProcessing(
+                emailAccount.id
+            );
 
             return emailAccount;
         } catch (error) {

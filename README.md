@@ -1,19 +1,21 @@
 # Automated Email Response Tool
 
-This project automates email processing using Gmail and Outlook via OAuth authentication, analyzes email content using OpenAI, categorizes emails, and sends appropriate replies. 
+This project automates email processing using Gmail and Outlook via OAuth authentication, analyzes email content using Gemini API, categorizes emails, and sends appropriate replies.
+
+### Demo Link
+Check out the demo here: [Loom Demo Video](https://www.loom.com/share/81376f2d18b44d969fa4610712fd18d3?sid=024948d1-6eb2-4559-af5d-3c89dc79a0c9)
 
 ## Technologies Used
 - **OAuth Authentication**: Gmail and Outlook
-- **OpenAI**: For analyzing email content and generating responses
+- **Gemini API**: For analyzing email content and generating responses (after issues with OpenAI API)
 - **Drizzle ORM**: For database interaction
 - **PostgreSQL**: Database storage
 - **Node.js & Express.js**: Backend server
-- **Gemini API**: For integration (if applicable)
 - **pnpm**: Package manager for dependencies
 
 ## Features
 1. **OAuth Authentication for Gmail & Outlook**
-2. **Email Analysis with OpenAI to Understand Context**
+2. **Email Analysis with Gemini API to Understand Context**
 3. **Automatic Email Categorization (Interested, Not Interested, More Information)**
 4. **Automated Email Replies Based on Context**
 5. **Fully Automated Workflow (No Manual Endpoint Triggers)**
@@ -51,12 +53,14 @@ This project automates email processing using Gmail and Outlook via OAuth authen
     Create a `.env` file in the root of the project with the following environment variables:
 
     ```
-    GMAIL_CLIENT_ID=<your-gmail-client-id>
-    GMAIL_CLIENT_SECRET=<your-gmail-client-secret>
-    OUTLOOK_CLIENT_ID=<your-outlook-client-id>
-    OUTLOOK_CLIENT_SECRET=<your-outlook-client-secret>
-    GEMINI_API_KEY=<your-openai-api-key>
-    DATABASE_URL=postgresql://<username>:<password>@localhost:5432/<database_name>
+    PORT=***
+    DATABASE_URL=***
+    GMAIL_CLIENT_ID=***
+    GMAIL_CLIENT_SECRET=***
+    BASE_URL=***
+    GEMINI_API_KEY=***
+    REDIS_URL=***
+    CLIENT_URL=***
     ```
 
 4. **Set up PostgreSQL**:
@@ -73,7 +77,7 @@ This project automates email processing using Gmail and Outlook via OAuth authen
     ```
 
 6. **Access the web page**:
-    Open your browser and go to [http://localhost:3000](http://localhost:3000) to access the tool.
+    Open your browser and go to [http://localhost:5173](http://localhost:5173) to access the tool.
 
 ### Demo Setup
 
@@ -85,7 +89,7 @@ This project automates email processing using Gmail and Outlook via OAuth authen
     - Send an email to the connected Gmail or Outlook account from a different account.
   
 3. **Email Categorization**:
-    - The tool will read incoming emails, analyze the content using OpenAI, and categorize them into one of three labels:
+    - The tool will read incoming emails, analyze the content using Gemini API, and categorize them into one of three labels:
       - **Interested**
       - **Not Interested**
       - **More Information**
@@ -100,18 +104,20 @@ This project automates email processing using Gmail and Outlook via OAuth authen
 
 ## Challenges Faced
 
-1. **OAuth Authentication**:
+1. **OpenAI API Quota Limitations**:
+    - Initially, we tried using the OpenAI API for analyzing email content and generating responses. However, we faced quota issues and were unable to scale efficiently for our needs. As a result, we decided to switch to the **Gemini API**, which provided better support for email analysis at scale.
+
+2. **Email Categorization**:
+    - One of the key challenges was correctly categorizing incoming emails. While OpenAI had a powerful model, categorizing emails accurately into predefined labels (Interested, Not Interested, More Information) required a nuanced understanding of context. We had to fine-tune the categorization logic by refining the prompts, ensuring accurate classification, especially for complex emails that didn’t fit neatly into any category.
+
+3. **Documentation and Label Handling**:
+    - Another challenge arose when trying to implement the email labeling system. The documentation for categorization features was initially unclear, requiring in-depth exploration of the APIs. I had to go through the documentation carefully to understand the limitations and capabilities, which involved some trial and error to ensure labels were correctly applied.
+
+4. **OAuth Authentication**:
     - Handling OAuth flow for both Gmail and Outlook required careful management of tokens and refresh tokens to avoid session expiration.
     - Dealing with Gmail's stricter OAuth scopes and handling user permissions properly was challenging.
-  
-2. **Email Categorization with OpenAI**:
-    - OpenAI's API was used to analyze email content, which required fine-tuning prompts to ensure accurate categorization and meaningful responses.
-    - Handling edge cases in email content that did not fit into the predefined categories was a challenge.
-  
-3. **Database Integration**:
-    - Setting up Drizzle ORM with PostgreSQL and ensuring proper synchronization between the app and database schema required thorough testing.
 
-4. **Email Sending & Automation**:
+5. **Email Sending & Automation**:
     - Implementing automated replies based on categorized emails, ensuring the response was contextually accurate, required fine-tuning of AI-generated content.
 
 ---
@@ -125,13 +131,13 @@ This project automates email processing using Gmail and Outlook via OAuth authen
     The entire email processing workflow is automated, from receiving emails to sending replies. The tool uses scheduled cron jobs to check for new emails periodically, analyze them, categorize them, and send replies.
 
 - **Error Handling**:
-    Proper error handling has been implemented, especially for API failures (Gmail, Outlook, OpenAI) and database connection issues.
+    Proper error handling has been implemented, especially for API failures (Gmail, Outlook, Gemini) and database connection issues.
 
 ---
 
 ## Conclusion
 
-This project demonstrates an automated email response system capable of authenticating users via Gmail and Outlook, analyzing emails with Gemini AI, categorizing them, and sending context-aware replies. The tool ensures minimal manual intervention, offering a smooth automation process for email management.
+This project demonstrates an automated email response system capable of authenticating users via Gmail and Outlook, analyzing emails with the Gemini API, categorizing them, and sending context-aware replies. The tool ensures minimal manual intervention, offering a smooth automation process for email management.
 
 For any additional questions or setup issues, feel free to open an issue in the repository.
 

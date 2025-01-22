@@ -23,7 +23,7 @@ export class AIService {
     }> {
         try {
             const model = this.genAI.getGenerativeModel({ model: this.model });
-            
+
             const prompt = `
         Analyze this email and categorize it into one of these labels: 
         "Interested", "Not Interested", "More Information"

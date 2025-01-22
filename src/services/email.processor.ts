@@ -53,7 +53,9 @@ export class EmailProcessor {
                     email.id,
                     analysis.label
                 );
-                console.log(`Label ${analysis.label} attached to email ${email.id}.`);
+                console.log(
+                    `Label ${analysis.label} attached to email ${email.id}.`
+                );
 
                 const response = await this.aiService.generateResponse(
                     email,
@@ -79,7 +81,9 @@ export class EmailProcessor {
                     email.id,
                     labelName
                 );
-                console.log(`Label ${labelName} attached to email ${email.id}.`);
+                console.log(
+                    `Label ${labelName} attached to email ${email.id}.`
+                );
 
                 // Send the generated response
                 await this.gmailService.sendReply(

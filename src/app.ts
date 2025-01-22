@@ -13,9 +13,14 @@ dotenv.config();
 const app = express();
 
 // Error handler middleware
-const errorHandler = (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+const errorHandler = (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+) => {
+    console.error("Unhandled error:", err);
+    res.status(500).json({ error: "Internal server error" });
 };
 
 async function initializeServer() {
@@ -27,7 +32,7 @@ async function initializeServer() {
             credentials: true,
         })
     );
-
+    
     // Initialize queue service
     try {
         console.log("Initializing queue service...");
@@ -71,43 +76,49 @@ async function startServer() {
         // Graceful shutdown handling
         const gracefulShutdown = async (signal: string) => {
             console.log(`${signal} received. Starting graceful shutdown...`);
-            
+
             // Close server first to stop accepting new requests
             server.close(async () => {
                 try {
                     // Shutdown queue service
                     const queueService = QueueService.getInstance();
                     await queueService.shutdown();
-                    console.log('Application shutdown successfully');
+                    console.log("Application shutdown successfully");
                     process.exit(0);
                 } catch (error) {
-                    console.error('Error during shutdown:', error);
+                    console.error("Error during shutdown:", error);
                     process.exit(1);
                 }
             });
 
             // Force shutdown after 30 seconds if graceful shutdown fails
             setTimeout(() => {
-                console.error('Could not close connections in time, forcefully shutting down');
+                console.error(
+                    "Could not close connections in time, forcefully shutting down"
+                );
                 process.exit(1);
             }, 30000);
         };
 
         // Handle different termination signals
-        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+        process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+        process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
         // Handle uncaught errors
-        process.on('uncaughtException', (error) => {
-            console.error('Uncaught Exception:', error);
-            gracefulShutdown('Uncaught Exception');
+        process.on("uncaughtException", (error) => {
+            console.error("Uncaught Exception:", error);
+            gracefulShutdown("Uncaught Exception");
         });
 
-        process.on('unhandledRejection', (reason, promise) => {
-            console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-            gracefulShutdown('Unhandled Rejection');
+        process.on("unhandledRejection", (reason, promise) => {
+            console.error(
+                "Unhandled Rejection at:",
+                promise,
+                "reason:",
+                reason
+            );
+            gracefulShutdown("Unhandled Rejection");
         });
-
     } catch (error) {
         console.error("Failed to start server:", error);
         process.exit(1);
